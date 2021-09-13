@@ -6,14 +6,14 @@
         <img src="../assets/logo.png" alt="">
       </div>
       <!-- 登錄表單區域 -->
-        <el-form label-width="0px" class="login_form">
+        <el-form :model="loginForm" label-width="0px" class="login_form">
           <!-- 用戶名 -->
           <el-form-item>
-            <el-input prefix-icon="el-icon-search"></el-input>
+            <el-input v-model="loginForm.username" prefix-icon="el-icon-user-solid"></el-input>
           </el-form-item>
           <!-- 密碼 -->
           <el-form-item>
-            <el-input prefix-icon="el-icon-search"></el-input>
+            <el-input v-model="loginForm.password" prefix-icon="el-icon-lock" type="password"></el-input>
           </el-form-item>
           <!-- 按鈕 -->
           <el-form-item>
@@ -28,9 +28,16 @@
 </template>
 
 <script>
-
 export default {
-  name: 'App'
+  data () {
+    return {
+      // 這是登錄表單的數據綁定對象
+      loginForm: {
+        username: 'zs',
+        password: 'll'
+      }
+    }
+  }
 }
 </script>
 
