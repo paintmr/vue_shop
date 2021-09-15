@@ -35,8 +35,8 @@ export default {
     return {
       // 這是登錄表單的數據綁定對象
       loginForm: {
-        username: 'zsa',
-        password: 'llaaaa'
+        username: 'admin',
+        password: '123456'
       },
       // 表單的驗證規則對象
       loginFormRules: {
@@ -75,6 +75,11 @@ export default {
           message: '登陆成功！',
           type: 'success'
         })
+        // 將登錄成功之後的token保存到客戶端的sessionStorage中
+        // 項目中除了登錄之外的其它API接口必須在登錄之後才能訪問
+        // token只應該在當前網頁打開期間生效，所以將token保存在sessionStorage中。（相比而言localstorage是持久的保存機制，在此不適用）
+        window.sessionStorage.setItem('token', res.data.token)
+        this.$router.push('/home')
       })
     }
   }
