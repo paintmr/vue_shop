@@ -9,10 +9,16 @@ import './assets/css/global.css'
 import axios from 'axios'
 const app = createApp(App)
 
-// 全局配置axios，这样每个组件可以直接用
-app.config.globalProperties.$axios = axios
 // 配置请求的根路径
 axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
+// 在axios发请求之前，先给有权限的请求挂载token
+axios.interceptors.request.use(config => {
+  // 为请求头对象添加Token验证的Authorization字段
+  config.headers.Authorization = window.sessionStorage.getItem('token')
+  return config
+})
+// 全局配置axios，这样每个组件可以直接用
+app.config.globalProperties.$axios = axios
 
 installElementPlus(app)
 app.use(router).mount('#app')
