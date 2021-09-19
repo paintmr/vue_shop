@@ -54,7 +54,6 @@
 </template>
 
 <script>
-import { ElMessage } from 'element-plus'
 export default {
   data () {
     return {
@@ -83,7 +82,7 @@ export default {
     // 获取所有的菜单
     async getMenuList () {
       const { data: res } = await this.$axios.get('menus')
-      if (res.meta.status !== 200) return ElMessage.error(res.meta.msg)
+      if (res.meta.status !== 200) return this.$ElMessage.error(res.meta.msg)
       this.menulist = res.data
     },
     // 点击按钮，切换左侧边栏折叠与展开

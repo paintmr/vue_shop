@@ -4,6 +4,8 @@ import router from './router'
 import installElementPlus from './plugins/element'
 // 導入全局樣式表
 import './assets/css/global.css'
+// 引入message组件
+import { ElMessage } from 'element-plus'
 
 // 引入axios
 import axios from 'axios'
@@ -19,6 +21,9 @@ axios.interceptors.request.use(config => {
 })
 // 全局配置axios，这样每个组件可以直接用
 app.config.globalProperties.$axios = axios
+
+// 全局配置Elmessage，这样每个组件可以直接用
+app.config.globalProperties.$ElMessage = ElMessage
 
 installElementPlus(app)
 app.use(router).mount('#app')

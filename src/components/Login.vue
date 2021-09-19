@@ -28,7 +28,6 @@
 </template>
 
 <script>
-import { ElMessage } from 'element-plus'
 
 export default {
   data () {
@@ -65,13 +64,13 @@ export default {
         if (!valid) return
         const { data: res } = await this.$axios.post('login', this.loginForm)
         if (res.meta.status !== 200) {
-          ElMessage.warning({
+          this.$ElMessage.warning({
             message: '登录失败',
             type: 'warning'
           })
           return
         }
-        ElMessage.success({
+        this.$ElMessage.success({
           message: '登陆成功！',
           type: 'success'
         })
