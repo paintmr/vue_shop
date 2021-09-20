@@ -1,4 +1,4 @@
-import { ElButton, ElForm, ElFormItem, ElInput, ElContainer, ElHeader, ElAside, ElMain, ElMenu, ElMenuItem, ElSubmenu, ElBreadcrumb, ElBreadcrumbItem, ElCard, ElCol, ElRow } from 'element-plus'
+import { ElButton, ElForm, ElFormItem, ElInput, ElContainer, ElHeader, ElAside, ElMain, ElMenu, ElMenuItem, ElSubmenu, ElBreadcrumb, ElBreadcrumbItem, ElCard, ElCol, ElRow, ElTableColumn, ElTable, ElSwitch, ElTooltip, ElPagination, ElDialog } from 'element-plus'
 
 export default (app) => {
   app.use(ElButton)
@@ -17,4 +17,10 @@ export default (app) => {
   app.use(ElCard)
   app.use(ElCol)
   app.use(ElRow)
+  app.use(ElTableColumn)
+  app.use(ElTable)
+  app.use(ElSwitch)
+  app.use(ElTooltip)
+  app.use(ElPagination)
+  app.use(ElDialog)
 }
