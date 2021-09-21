@@ -42,7 +42,7 @@
               <el-tooltip
                 class="item"
                 effect="dark"
-                content="Top Left 设置权限"
+                content="设置权限"
                 placement="top-start"
                 :enterable="false"
               >
@@ -69,6 +69,7 @@
         title="添加用户"
         v-model="addDialogVisible"
         width="50%"
+        @close="addDialogClosed"
       >
         <!-- 对话框内容主体区域 -->
           <el-form
@@ -76,6 +77,7 @@
             :rules="addFormRules"
             ref="addFormRef"
             label-width="80px"
+            status-icon
           >
             <el-form-item label="用户名" prop="username">
               <el-input v-model="addForm.username"></el-input>
@@ -94,7 +96,7 @@
         <template #footer>
           <span class="dialog-footer">
             <el-button @click="addDialogVisible = false">取 消</el-button>
-            <el-button type="primary" @click="addDialogVisible = false">确 定</el-button>
+            <el-button type="primary" @click="addUser">确 定</el-button>
           </span>
         </template>
       </el-dialog>
@@ -104,6 +106,24 @@
 <script>
 export default {
   data () {
+    // 验证邮箱的规则
+    var checkEmail = (rule, value, callback) => {
+      const regEmail = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/
+      if (regEmail.test(value)) {
+        // 符合规则的邮箱
+        return callback()
+      }
+      callback(new Error('请输入符合规则的邮箱'))
+    }
+    // 验证手机号码的规则
+    var checkMobile = (rule, value, callback) => {
+      const regMobile = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/
+      if (regMobile.test(value)) {
+        // 符合规则的手机号码
+        return callback()
+      }
+      callback(new Error('请输入符合规则的手机号码'))
+    }
     return {
       // 获取用户列表的参数对象
       queryInfo: {
@@ -133,10 +153,12 @@ export default {
           { min: 6, max: 15, message: '用户名为6-15个字符', trigger: 'blur' }
         ],
         email: [
-          { required: true, message: '请输入邮箱地址', trigger: 'blur' }
+          { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+          { validator: checkEmail, trigger: 'blur' }
         ],
         mobile: [
-          { required: true, message: '请输入手机号码', trigger: 'blur' }
+          { required: true, message: '请输入手机号码', trigger: 'blur' },
+          { validator: checkMobile, trigger: 'blur' }
         ]
       }
     }
@@ -172,6 +194,26 @@ export default {
         return this.$ElMessage.error('更新用户状态失败！')
       }
       this.$ElMessage.success('更新用户状态成功！')
+    },
+    // 当添加用户对话框关闭
+    addDialogClosed () {
+      this.$refs.addFormRef.resetFields()
+    },
+    // 添加用户
+    addUser () {
+      this.$refs.addFormRef.validate(async valid => {
+        // console.log(valid)
+        if (!valid) return
+        const { data: res } = await this.$axios.post('users', this.addForm)
+        if (res.meta.status !== 201) {
+          this.$ElMessage.error('添加用户失败')
+        }
+        this.$ElMessage.success('添加用户失败')
+        // 隐藏添加用户的对话框
+        this.addDialogVisible = false
+        // 重新获取用户列表数据
+        this.getUserList()
+      })
     }
   }
 }
