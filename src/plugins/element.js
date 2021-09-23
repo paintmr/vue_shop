@@ -1,6 +1,9 @@
-import { ElButton, ElForm, ElFormItem, ElInput, ElContainer, ElHeader, ElAside, ElMain, ElMenu, ElMenuItem, ElSubmenu, ElBreadcrumb, ElBreadcrumbItem, ElCard, ElCol, ElRow, ElTableColumn, ElTable, ElSwitch, ElTooltip, ElPagination, ElDialog, ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox, ElButton, ElForm, ElFormItem, ElInput, ElContainer, ElHeader, ElAside, ElMain, ElMenu, ElMenuItem, ElSubmenu, ElBreadcrumb, ElBreadcrumbItem, ElCard, ElCol, ElRow, ElTableColumn, ElTable, ElSwitch, ElTooltip, ElPagination, ElDialog, ElTag } from 'element-plus'
 
 export default (app) => {
+  // 全局配置Elmessage和ElmessageBox，这样每个组件可以直接用
+  app.config.globalProperties.$ElMessage = ElMessage
+  app.config.globalProperties.$ElMessageBox = ElMessageBox
   app.use(ElButton)
   app.use(ElForm)
   app.use(ElFormItem)
@@ -23,7 +26,5 @@ export default (app) => {
   app.use(ElTooltip)
   app.use(ElPagination)
   app.use(ElDialog)
-  // 全局配置Elmessage和ElmessageBox，这样每个组件可以直接用
-  app.config.globalProperties.$ElMessage = ElMessage
-  app.config.globalProperties.$ElMessageBox = ElMessageBox
+  app.use(ElTag)
 }
