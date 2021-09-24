@@ -1,4 +1,5 @@
-import { ElMessage, ElMessageBox, ElButton, ElForm, ElFormItem, ElInput, ElContainer, ElHeader, ElAside, ElMain, ElMenu, ElMenuItem, ElSubmenu, ElBreadcrumb, ElBreadcrumbItem, ElCard, ElCol, ElRow, ElTableColumn, ElTable, ElSwitch, ElTooltip, ElPagination, ElDialog, ElTag } from 'element-plus'
+import { ElMessage, ElMessageBox, ElButton, ElForm, ElFormItem, ElInput, ElContainer, ElHeader, ElAside, ElMain, ElMenu, ElMenuItem, ElSubmenu, ElBreadcrumb, ElBreadcrumbItem, ElCard, ElCol, ElRow, ElTableColumn, ElTable, ElSwitch, ElTooltip, ElPagination, ElDialog, ElTag, ElIcon } from 'element-plus'
+import { CaretRight } from '@element-plus/icons'
 
 export default (app) => {
   // 全局配置Elmessage和ElmessageBox，这样每个组件可以直接用
@@ -27,4 +28,6 @@ export default (app) => {
   app.use(ElPagination)
   app.use(ElDialog)
   app.use(ElTag)
+  app.use(ElIcon)
+  app.component('caret-right', CaretRight)
 }
