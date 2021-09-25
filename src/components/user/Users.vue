@@ -1,137 +1,169 @@
 <template>
   <div>
     <!-- 面包屑导航区域 -->
-      <el-breadcrumb separator-class="el-icon-arrow-right">
-        <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-        <el-breadcrumb-item>用户管理</el-breadcrumb-item>
-        <el-breadcrumb-item>用户列表</el-breadcrumb-item>
-      </el-breadcrumb>
+    <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
+      <el-breadcrumb-item>用户列表</el-breadcrumb-item>
+    </el-breadcrumb>
 
-      <!-- 卡片视图区域 -->
-      <el-card>
-        <!-- 搜索与添加区域 -->
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear="getUserList">
-              <template #append>
-                <el-button icon="el-icon-search" @click="getUserList"></el-button>
-              </template>
-            </el-input>
-          </el-col>
-          <el-col :span="4">
-            <el-button type="primary" @click="addDialogVisible = true">添加用户</el-button>
-          </el-col>
-        </el-row>
-        <!-- 用户列表区域 -->
-        <el-table :data="userlist" style="width: 100%" border stripe>
-          <el-table-column type="index" label="#"> </el-table-column>
-          <el-table-column prop="username" label="用户名"> </el-table-column>
-          <el-table-column prop="email" label="邮箱"> </el-table-column>
-          <el-table-column prop="mobile" label="手机号码"> </el-table-column>
-          <el-table-column prop="role_name" label="用户权限"> </el-table-column>
-          <el-table-column label="状态">
-            <template v-slot="scope">
-              <el-switch v-model="scope.row.mg_state" @change="userStateChanged(scope.row)">
-              </el-switch>
+    <!-- 卡片视图区域 -->
+    <el-card>
+      <!-- 搜索与添加区域 -->
+      <el-row :gutter="20">
+        <el-col :span="8">
+          <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear="getUserList">
+            <template #append>
+              <el-button icon="el-icon-search" @click="getUserList"></el-button>
             </template>
-          </el-table-column>
-          <el-table-column label="操作" width="180px">
-            <template v-slot="scope">
-              <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.id)"></el-button>
-              <el-button type="danger" icon="el-icon-delete" size="mini" @click="showDeleteDialog(scope.row.id)"></el-button>
-              <el-tooltip
-                class="item"
-                effect="dark"
-                content="设置权限"
-                placement="top-start"
-                :enterable="false"
-              >
-                <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
-              </el-tooltip>
-            </template>
-          </el-table-column>
-        </el-table>
-        <!-- 分页区域 -->
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="queryInfo.pagenum"
-          :page-sizes="[1, 2, 5, 8, 10]"
-          :page-size="queryInfo.pagesize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-        >
-        </el-pagination>
-      </el-card>
-
-      <!-- 添加用户的对话框 -->
-      <el-dialog
-        title="添加用户"
-        v-model="addDialogVisible"
-        width="50%"
-        @close="addDialogClosed"
+          </el-input>
+        </el-col>
+        <el-col :span="4">
+          <el-button type="primary" @click="addDialogVisible = true">添加用户</el-button>
+        </el-col>
+      </el-row>
+      <!-- 用户列表区域 -->
+      <el-table :data="userlist" style="width: 100%" border stripe>
+        <el-table-column type="index" label="#"> </el-table-column>
+        <el-table-column prop="username" label="用户名"> </el-table-column>
+        <el-table-column prop="email" label="邮箱"> </el-table-column>
+        <el-table-column prop="mobile" label="手机号码"> </el-table-column>
+        <el-table-column prop="role_name" label="用户权限"> </el-table-column>
+        <el-table-column label="状态">
+          <template v-slot="scope">
+            <el-switch v-model="scope.row.mg_state" @change="userStateChanged(scope.row)">
+            </el-switch>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="180px">
+          <template v-slot="scope">
+            <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.id)"></el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini" @click="showDeleteDialog(scope.row.id)"></el-button>
+            <el-tooltip
+              class="item"
+              effect="dark"
+              content="设置权限"
+              placement="top-start"
+              :enterable="false"
+            >
+              <el-button type="warning" icon="el-icon-setting" size="mini" @click="setRole(scope.row)"></el-button>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!-- 分页区域 -->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="queryInfo.pagenum"
+        :page-sizes="[1, 2, 5, 8, 10]"
+        :page-size="queryInfo.pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
       >
-        <!-- 对话框内容主体区域 -->
-          <el-form
-            :model="addForm"
-            :rules="addFormRules"
-            ref="addFormRef"
-            label-width="80px"
-            status-icon
-          >
-            <el-form-item label="用户名" prop="username">
-              <el-input v-model="addForm.username"></el-input>
-            </el-form-item>
-            <el-form-item label="密码" prop="password">
-              <el-input v-model="addForm.password" type="password"></el-input>
-            </el-form-item>
-            <el-form-item label="邮箱" prop="email">
-              <el-input v-model="addForm.email"></el-input>
-            </el-form-item>
-            <el-form-item label="手机号码" prop="mobile">
-              <el-input v-model="addForm.mobile"></el-input>
-            </el-form-item>
-          </el-form>
-        <!-- 对话框底部区域 -->
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button @click="addDialogVisible = false">取 消</el-button>
-            <el-button type="primary" @click="addUser">确 定</el-button>
-          </span>
-        </template>
-      </el-dialog>
+      </el-pagination>
+    </el-card>
 
-      <!-- 修改用户的对话框 -->
-      <el-dialog
-        title="修改用户"
-        v-model="editDialogVisible"
-        width="50%"
-        @close="editDialogClosed"
-      >
+    <!-- 添加用户的对话框 -->
+    <el-dialog
+      title="添加用户"
+      v-model="addDialogVisible"
+      width="50%"
+      @close="addDialogClosed"
+    >
+      <!-- 对话框内容主体区域 -->
         <el-form
-        :model="editForm"
-        :rules="editFormRules"
-        ref="editFormRef"
-        label-width="70px"
-        status-icon
-      >
-          <el-form-item label="用户名">
-            <el-input v-model="editForm.username" disabled></el-input>
+          :model="addForm"
+          :rules="addFormRules"
+          ref="addFormRef"
+          label-width="80px"
+          status-icon
+        >
+          <el-form-item label="用户名" prop="username">
+            <el-input v-model="addForm.username"></el-input>
+          </el-form-item>
+          <el-form-item label="密码" prop="password">
+            <el-input v-model="addForm.password" type="password"></el-input>
           </el-form-item>
           <el-form-item label="邮箱" prop="email">
-            <el-input v-model="editForm.email"></el-input>
+            <el-input v-model="addForm.email"></el-input>
           </el-form-item>
-          <el-form-item label="手机" prop="mobile">
-            <el-input v-model="editForm.mobile"></el-input>
+          <el-form-item label="手机号码" prop="mobile">
+            <el-input v-model="addForm.mobile"></el-input>
           </el-form-item>
         </el-form>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button @click="editDialogVisible = false">取 消</el-button>
-            <el-button type="primary" @click="editUser">确 定</el-button>
-          </span>
-        </template>
-      </el-dialog>
+      <!-- 对话框底部区域 -->
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="addDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="addUser">确 定</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 修改用户的对话框 -->
+    <el-dialog
+      title="修改用户"
+      v-model="editDialogVisible"
+      width="50%"
+      @close="editDialogClosed"
+    >
+      <el-form
+      :model="editForm"
+      :rules="editFormRules"
+      ref="editFormRef"
+      label-width="70px"
+      status-icon
+    >
+        <el-form-item label="用户名">
+          <el-input v-model="editForm.username" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="手机" prop="mobile">
+          <el-input v-model="editForm.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="editDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="editUser">确 定</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 设置角色的对话框dialog -->
+    <el-dialog
+      v-model="setRoleDialogVisible"
+      title="设置角色"
+      width="50%"
+      @close="setRoleDialogClosed"
+    >
+      <div>
+        <p>当前的用户：{{userInfo.username}}</p>
+        <p>当前的角色：{{userInfo.role_name}}</p>
+        <p>分配新角色：
+          <el-select v-model="selectedRoleId" placeholder="请选择角色">
+            <el-option
+              v-for="item in rolesList"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </p>
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="setRoleDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="saveRoleInfo"
+            >确定</el-button
+          >
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -207,7 +239,15 @@ export default {
           { required: true, message: '请输入手机号码', trigger: 'blur' },
           { validator: checkMobile, trigger: 'blur' }
         ]
-      }
+      },
+      // 显示或隐藏设置角色的对话框
+      setRoleDialogVisible: false,
+      // 需要被分配角色的用户信息
+      userInfo: {},
+      // 所有角色列表
+      rolesList: [],
+      // 选中的角色id
+      selectedRoleId: ''
     }
   },
   created () {
@@ -315,6 +355,33 @@ export default {
             message: '已取消删除'
           })
         })
+    },
+    // 设置权限
+    async setRole (userInfo) {
+      this.userInfo = userInfo
+      // 展示对话框之前，获取所有角色列表
+      const { data: res } = await this.$axios.get('roles')
+      if (res.meta.status !== 200) return this.$ElMessage.error(res.meta.msg)
+      this.rolesList = res.data
+      this.setRoleDialogVisible = true
+    },
+    async saveRoleInfo () {
+      if (!this.selectedRoleId) {
+        return this.$ElMessage.error('请选择要分配的角色')
+      }
+      const { data: res } = await this.$axios.put('users/' + this.userInfo.id + '/role', { rid: this.selectedRoleId })
+      if (res.meta.status !== 200) {
+        return this.$ElMessage.error(res.meta.msg)
+      }
+      this.$ElMessage.success('分配角色成功')
+      // 隐藏添加用户的对话框
+      this.setRoleDialogVisible = false
+      // 重新获取用户列表数据
+      this.getUserList()
+    },
+    // 监听关闭角色对话框的关闭事件
+    setRoleDialogClosed () {
+      this.selectedRoleId = ''
     }
   }
 }

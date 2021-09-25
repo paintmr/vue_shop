@@ -1,4 +1,4 @@
-import { ElMessage, ElMessageBox, ElButton, ElForm, ElFormItem, ElInput, ElContainer, ElHeader, ElAside, ElMain, ElMenu, ElMenuItem, ElSubmenu, ElBreadcrumb, ElBreadcrumbItem, ElCard, ElCol, ElRow, ElTableColumn, ElTable, ElSwitch, ElTooltip, ElPagination, ElDialog, ElTag, ElIcon } from 'element-plus'
+import { ElMessage, ElMessageBox, ElButton, ElForm, ElFormItem, ElInput, ElContainer, ElHeader, ElAside, ElMain, ElMenu, ElMenuItem, ElSubmenu, ElBreadcrumb, ElBreadcrumbItem, ElCard, ElCol, ElRow, ElTableColumn, ElTable, ElSwitch, ElTooltip, ElPagination, ElDialog, ElTag, ElIcon, ElTree, ElOption, ElSelect } from 'element-plus'
 import { CaretRight } from '@element-plus/icons'
 
 export default (app) => {
@@ -29,5 +29,8 @@ export default (app) => {
   app.use(ElDialog)
   app.use(ElTag)
   app.use(ElIcon)
+  app.use(ElTree)
+  app.use(ElOption)
+  app.use(ElSelect)
   app.component('caret-right', CaretRight)
 }
