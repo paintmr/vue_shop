@@ -1,5 +1,5 @@
-import { ElMessage, ElMessageBox, ElButton, ElForm, ElFormItem, ElInput, ElContainer, ElHeader, ElAside, ElMain, ElMenu, ElMenuItem, ElSubmenu, ElBreadcrumb, ElBreadcrumbItem, ElCard, ElCol, ElRow, ElTableColumn, ElTable, ElSwitch, ElTooltip, ElPagination, ElDialog, ElTag, ElIcon, ElTree, ElOption, ElSelect } from 'element-plus'
-import { CaretRight } from '@element-plus/icons'
+import { ElMessage, ElMessageBox, ElButton, ElForm, ElFormItem, ElInput, ElContainer, ElHeader, ElAside, ElMain, ElMenu, ElMenuItem, ElSubmenu, ElBreadcrumb, ElBreadcrumbItem, ElCard, ElCol, ElRow, ElTableColumn, ElTable, ElSwitch, ElTooltip, ElPagination, ElDialog, ElTag, ElIcon, ElTree, ElOption, ElSelect, ElCascader } from 'element-plus'
+import { CaretRight, SuccessFilled, CircleCloseFilled } from '@element-plus/icons'
 
 export default (app) => {
   // 全局配置Elmessage和ElmessageBox，这样每个组件可以直接用
@@ -32,5 +32,8 @@ export default (app) => {
   app.use(ElTree)
   app.use(ElOption)
   app.use(ElSelect)
+  app.use(ElCascader)
   app.component('caret-right', CaretRight)
+  app.component('success-filled', SuccessFilled)
+  app.component('circle-close-filled', CircleCloseFilled)
 }
