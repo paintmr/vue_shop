@@ -10,7 +10,7 @@
   <el-card class="box-card">
 
     <!-- 按钮 -->
-    <el-button type="primary" @click="showAddGoodsCateDialog">添加分类</el-button>
+    <el-button type="primary" @click="showAddGoodsCatDialog">添加分类</el-button>
 
     <!-- 表格 -->
     <el-table :data="goodsCateList" border style="width: 100%" row-key="cat_id">
@@ -32,7 +32,7 @@
       </el-table-column>
       <el-table-column label="操作">
         <template v-slot="scope">
-          <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditGoodsCateDialog(scope.row)">编辑</el-button>
+          <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditGoodsCatDialog(scope.row)">编辑</el-button>
           <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteGoodsCate(scope.row)">删除</el-button>
         </template>
       </el-table-column>
@@ -51,23 +51,23 @@
     </el-pagination>
   </el-card>
 
-  <!-- 添加/编辑分类的对话框 -->
+  <!-- 添加分类的对话框 -->
   <el-dialog
-    v-model="goodsCateDialogVisible"
+    v-model="addGoodsCateVisible"
     title="添加商品分类"
     width="50%"
-    @close="dialogClosed"
+    @close="addDialogClosed"
   >
     <!-- 对话框主体 -->
     <el-form
-      :model="goodsCateForm"
+      :model="addGoodsCateForm"
       :rules="goodsCateFormRules"
-      ref="goodsCateFormRef"
+      ref="addGoodsCateFormRef"
       label-width="80px"
       status-icon
     >
       <el-form-item label="分类名称" prop="cat_name">
-        <el-input v-model="goodsCateForm.cat_name"></el-input>
+        <el-input v-model="addGoodsCateForm.cat_name"></el-input>
       </el-form-item>
       <el-form-item label="父级分类">
         <!-- element plus及联选择器 -->
@@ -86,7 +86,49 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="goodsCateVisible = false">取消</el-button>
-        <el-button type="primary" @click="setGoodsCate"
+        <el-button type="primary" @click="addGoodsCate"
+          >确定</el-button
+        >
+      </span>
+    </template>
+  </el-dialog>
+
+  <!-- 编辑商品分类的对话框 -->
+  <el-dialog
+    v-model="editGoodsCateVisible"
+    title="编辑商品分类"
+    width="50%"
+    @close="editDialogClosed"
+  >
+    <!-- 对话框主体 -->
+    <el-form
+      :model="addGoodsCateForm"
+      :rules="goodsCateFormRules"
+      ref="editGoodsCateFormRef"
+      label-width="80px"
+      status-icon
+    >
+      <el-form-item label="分类名称" prop="cat_name">
+        <el-input v-model="addGoodsCateForm.cat_name"></el-input>
+      </el-form-item>
+      <el-form-item label="父级分类">
+        <!-- element plus及联选择器 -->
+        <!-- options指定数据源。v-model把选中的值双向绑定到data数据中。这里的v-model必须是数组。只要选择了某个值，就会触发@change函数，并且可以在函数中得到选择的值。clearable有清空的按钮。 -->
+        <el-cascader
+          v-model="selectedGoodsParentCatId"
+          :options="goodsParentCateList"
+          :props="cascaderProps"
+          @change="goodsParentCateChanged"
+          style="width: 100%"
+          clearable
+        ></el-cascader>
+      </el-form-item>
+    </el-form>
+    <!-- 对话框底部 -->
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="editGoodsCateVisible = false">取消</el-button>
+        <el-button type="primary" @click="editGoodsCate"
           >确定</el-button
         >
       </span>
@@ -119,10 +161,10 @@ export default {
         1: '二级',
         2: '三级'
       },
-      // 是否显示添加/编辑商品分类对话框
-      goodsCateDialogVisible: false,
-      // 添加商品/编辑分类的表单数据
-      goodsCateForm: {
+      // 是否显示添加商品对话框
+      addGoodsCateVisible: false,
+      // 添加商品分类的表单数据
+      addGoodsCateForm: {
         // 将要添加的分类的名称
         cat_name: '',
         // 父级分类的id
@@ -130,7 +172,7 @@ export default {
         // 将要添加的分类的等级。0、1、2分别代表一级二级三级分类
         cat_level: 0
       },
-      // 添加/编辑表单的验证规则对象
+      // 添加表单的验证规则对象
       goodsCateFormRules: {
         cat_name: [
           { required: true, message: '请输入商品分类', trigger: 'blur' },
@@ -149,12 +191,8 @@ export default {
         children: 'children',
         checkStrictly: true
       },
-      addGoodsCateFlag: false,
-      editGoodsCateFlag: false,
-      setGoodsCateMsg: {
-        add: '添加商品分类成功',
-        edit: '编辑商品分类成功'
-      }
+      // 是否显示编辑商品分类对话框
+      editGoodsCateVisible: false
     }
   },
   created () {
@@ -181,24 +219,73 @@ export default {
       this.queryInfo.pagenum = newPageNum
       this.getGoodsCateList()
     },
-    // 打开添加商品分类对话框
-    showAddGoodsCateDialog () {
-      this.goodsCateDialogVisible = true
+    // 展示添加商品分类的对话框
+    showAddGoodsCatDialog () {
+      this.addGoodsCateVisible = true
       this.getGoodsParentCateList()
-      this.addGoodsCateFlag = true
     },
-    // 打开编辑商品分类对话框
-    async showEditGoodsCateDialog (goodsCat) {
+    // 获取父级分类的列表（即所有一二级分类）
+    async getGoodsParentCateList () {
+      const { data: res } = await this.$axios.get('categories', { params: { type: 2 } })
+      if (res.meta.status !== 200) return this.$ElMessage.error(res.meta.msg)
+      this.goodsParentCateList = res.data
+      // console.log(res.data)
+    },
+    // 监听级联选择器的变化
+    goodsParentCateChanged (value) {
+      // this.selectedGoodsParentCatId = value。value是element plus自带的，自动传入的参数
+      // 如果this.selectedGoodsParentCatId为null，证明刚刚清空了选择，此时如果直接进入if (this.selectedGoodsParentCatId.length > 0）这个流程判断会报错，因为null没有length，所以先要判断this.selectedGoodsParentCatId是否为null
+      // console.log(this.selectedGoodsParentCatId)
+      if (this.selectedGoodsParentCatId !== null) {
+        // 如果this.selectedGoodsParentCatId中的length大于0，证明选中了父级分类；反之，就没有选择任何父级分类
+        if (this.selectedGoodsParentCatId.length > 0) {
+          this.addGoodsCateForm.cat_pid = this.selectedGoodsParentCatId[this.selectedGoodsParentCatId.length - 1]
+          this.addGoodsCateForm.cat_level = this.selectedGoodsParentCatId.length
+        } else {
+          this.addGoodsCateForm.cat_pid = 0
+          this.addGoodsCateForm.cat_level = 0
+        }
+      } else {
+        this.addGoodsCateForm.cat_pid = 0
+        this.addGoodsCateForm.cat_level = 0
+      }
+    },
+    addDialogClosed () {
+      this.$refs.addGoodsCateFormRef.resetFields()
+      this.selectedGoodsParentCatId = []
+      this.addGoodsCateForm.cat_level = 0
+      this.addGoodsCateForm.cat_pid = 0
+    },
+    addGoodsCate () {
+      // console.log(this.addGoodsCateForm)
+      // 预校验通过后才能把数据提交到数据库
+      // console.log(this.addGoodsCateForm)
+      this.$refs.addGoodsCateFormRef.validate(async valid => {
+        if (!valid) return
+        const { data: res } = await this.$axios.post('categories', this.addGoodsCateForm)
+        if (res.meta.status !== 201) {
+          return this.$ElMessage.error(res.meta.msg)
+        }
+        this.$ElMessage.success('添加商品分类成功')
+        // 隐藏添加商品分类的对话框
+        this.addGoodsCateVisible = false
+        // 重新获取商品分类列表数据
+        this.getGoodsCateList()
+      })
+    },
+    // 打开编辑对话框
+    async showEditGoodsCatDialog (goodsCat) {
       // 根据id获取分类名称
       const { data: res } = await this.$axios.get('categories/' + goodsCat.cat_id)
       if (res.meta.status !== 200) {
         return this.$ElMessage.error(res.meta.msg)
       }
       // console.log(res.data)
-      this.goodsCateForm = res.data
-      this.goodsCateDialogVisible = true
-      // 获取所有的父级（一二级）分类数据
+      this.addGoodsCateForm = res.data
+      this.editGoodsCateVisible = true
+      // 获取所有的分类数据
       this.getGoodsParentCateList()
+      // 获取商品分类上级的信息(一级和二级)
       // 获取当前被编辑商品分类的所有父级商品分类信息
       if (res.data.cat_level === 0) {
         this.selectedGoodsParentCatId = [0]
@@ -211,84 +298,28 @@ export default {
           // console.log(this.selectedGoodsParentCatId)
         })
       }
-      this.editGoodsCateFlag = true
     },
-    // 获取父级分类的列表（即所有一二级分类）
-    async getGoodsParentCateList () {
-      const { data: res } = await this.$axios.get('categories', { params: { type: 2 } })
-      if (res.meta.status !== 200) return this.$ElMessage.error(res.meta.msg)
-      this.goodsParentCateList = res.data
-      // console.log(res.data)
-    },
-    // 监听级联选择器的变化
-    goodsParentCateChanged (value) {
-      // this.selectedGoodsParentCatId = value。value是element plus自带的，自动传入的参数。可以用value，也可以用this.selectedGoodsParentCatId。
-      // 如果this.selectedGoodsParentCatId为null，证明刚刚清空了选择，此时如果直接进入if (this.selectedGoodsParentCatId.length > 0）这个流程判断会报错，因为null没有length，所以先要判断this.selectedGoodsParentCatId是否为null
-      // console.log(this.selectedGoodsParentCatId)
-      if (this.selectedGoodsParentCatId !== null) {
-        // 如果this.selectedGoodsParentCatId中的length大于0，证明选中了父级分类；反之，就没有选择任何父级分类
-        if (this.selectedGoodsParentCatId.length > 0) {
-          this.goodsCateForm.cat_pid = this.selectedGoodsParentCatId[this.selectedGoodsParentCatId.length - 1]
-          this.goodsCateForm.cat_level = this.selectedGoodsParentCatId.length
-        } else {
-          this.goodsCateForm.cat_pid = 0
-          this.goodsCateForm.cat_level = 0
-        }
-      } else {
-        this.goodsCateForm.cat_pid = 0
-        this.goodsCateForm.cat_level = 0
-      }
-    },
-    dialogClosed () {
-      this.$refs.goodsCateFormRef.resetFields()
+    editDialogClosed () {
+      this.$refs.editGoodsCateFormRef.resetFields()
       this.selectedGoodsParentCatId = []
-      this.goodsCateForm.cat_level = 0
-      this.goodsCateForm.cat_pid = 0
+      this.addGoodsCateForm.cat_level = 0
+      this.addGoodsCateForm.cat_pid = 0
     },
-    // 点击dialog对话框的确定按钮时，根据flag确定是添加还是编辑
-    setGoodsCate () {
-      if (this.addGoodsCateFlag) {
-        this.addGoodsCate(this.setGoodsCateMsg.add)
-      } else if (this.editGoodsCateFlag) {
-        this.editGoodsCate(this.setGoodsCateMsg.edit)
-      }
-    },
-    // 向数据库提交添加的内容
-    addGoodsCate (msg) {
-      // 预校验通过后才能把数据提交到数据库
-      // console.log(this.goodsCateForm)
-      this.$refs.goodsCateFormRef.validate(async valid => {
+    // 提交编辑的内容
+    editGoodsCate () {
+      this.$refs.editGoodsCateFormRef.validate(async valid => {
         if (!valid) return
-        const { data: res } = await this.$axios.post('categories', this.goodsCateForm)
-        if (res.meta.status !== 201) {
-          return this.$ElMessage.error(res.meta.msg)
-        }
-        this.$ElMessage.success(msg)
-        // 隐藏添加商品分类的对话框
-        this.goodsCateDialogVisible = false
-        // 重新获取商品分类列表数据
-        this.getGoodsCateList()
-        // 把添加商品的flag设置为默认值false
-        this.addGoodsCateFlag = false
-      })
-    },
-    // 向数据库提交编辑的内容
-    editGoodsCate (msg) {
-      this.$refs.goodsCateFormRef.validate(async valid => {
-        if (!valid) return
-        // console.log(this.goodsCateForm)
-        const { data: res } = await this.$axios.put('categories/' + this.goodsCateForm.cat_id, this.goodsCateForm)
-        // console.log(res)
+        console.log(this.addGoodsCateForm)
+        const { data: res } = await this.$axios.put('categories/' + this.addGoodsCateForm.cat_id, this.addGoodsCateForm)
+        console.log(res)
         if (res.meta.status !== 200) {
           return this.$ElMessage.error(res.meta.msg)
         }
-        this.$ElMessage.success(msg)
+        this.$ElMessage.success('编辑用户成功')
         // 隐藏添加用户的对话框
-        this.goodsCateDialogVisible = false
+        this.editGoodsCateVisible = false
         // 重新获取用户列表数据
         this.getGoodsCateList()
-        // 把编辑商品的flag设置为默认值false
-        this.editGoodsCateFlag = false
       })
     },
     // 删除商品分类
